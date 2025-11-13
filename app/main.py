@@ -1,36 +1,32 @@
-# app/main.py
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+import os
+import httpx
+from fastapi import FastAPI
 from pydantic import BaseModel
-from .agent_wrapper import get_agent_response
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 
 app = FastAPI(title="Fatima AI Chatbot API")
-
-# CORS (Next.js frontend ke liye)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 class ChatRequest(BaseModel):
     message: str
 
 @app.get("/")
-async def root():
-    return {"message": "who made you?"}
+def root():
+    return {"message": "Fatima AI Chatbot API running"}
 
 @app.post("/chat")
-async def chat_endpoint(payload: ChatRequest):
-    if not payload.message.strip():
-        raise HTTPException(status_code=400, detail="Message is empty")
-    try:
-        # Ye wahi about_me_tool data + AI response return karega
-        response = await get_agent_response(payload.message)
-        return {"reply": response}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
-    
+def chat(request: ChatRequest):
+    # Yahan HTTP request send karna Gemini API ko
+    headers = {"Authorization": f"Bearer {GEMINI_API_KEY}"}
+    payload = {
+        "model": "gemini-2.0-flash",
+        "messages": [{"role": "user", "content": request.message}]
+    }
+    response = httpx.post(GEMINI_URL, headers=headers, json=payload)
+    data = response.json()
+    # Gemini response ko return karo
+    return {"response": data.get("choices", [{"message": {"content": "Error"}}])[0]["message"]["content"]}
