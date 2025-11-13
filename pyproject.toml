@@ -1,12 +1,12 @@
 [project]
 name = "fastapi-chatbot"
 version = "0.1.0"
-description = "Add your description here"
+description = "Fatima AI Chatbot FastAPI backend"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "fastapi==0.121.1",
     "uvicorn==0.23.0",
     "python-dotenv==1.0.0",
-    "httpx==0.28.1"  # HTTP client for calling OpenAI/Gemini API
+    "httpx==0.28.1"
 ]
