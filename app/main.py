@@ -33,7 +33,7 @@ class ChatRequest(BaseModel):
 def about_me_tool(query: str) -> str:
     q = (query or "").lower()
     # check specific keyphrases - add more variants as you like
-    if "who made you" in q or "who is your creator" in q or "who created you" in q:
+    if "who made you" in q or "who is your creator" in q or "who created you" in q or "who are you" in q:
         return (
             "Mujhe Fatima Farooq Khuwaja ne banaya hai. "
             "Woh ek talented Full Stack Developer, Python Expert aur Agentic AI Engineer hain. 😊"
@@ -42,7 +42,7 @@ def about_me_tool(query: str) -> str:
         return (
             "Fatima Farooq Khuwaja ek passionate Full Stack Engineer hain jo Next.js aur Python me kaam karte hain. "
             "Unhon ne 100+ websites develop ki hain — eCommerce, portfolios, blogs, aur zyada. "
-            "Woh GIAIC ki student bhi rahi hain."
+            "Woh GIAIC ki student bhi hain."
         )
     # can add more canned responses
     if "about me" in q and "fatima" in q:
@@ -70,7 +70,7 @@ async def call_gemini(prompt: str) -> str:
         # add other params like temperature, max_tokens if supported
     }
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient() as client:
         resp = await client.post(GEMINI_URL, headers=headers, json=body)
         resp.raise_for_status()
         data = resp.json()
@@ -127,54 +127,3 @@ async def chat_endpoint(payload: ChatRequest):
 
 
 
-
-
-
-
-
-
-# # app/main.py
-# from fastapi import FastAPI, HTTPException
-# from fastapi.middleware.cors import CORSMiddleware
-# from pydantic import BaseModel
-# import os
-# import httpx
-# from dotenv import load_dotenv
-
-# load_dotenv()
-# GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-# GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-
-# app = FastAPI(title="Fatima AI Chatbot API")
-
-# # CORS (Next.js frontend ke liye)
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# class ChatRequest(BaseModel):
-#     message: str
-
-# @app.get("/")
-# async def root():
-#     return {"message": "Fatima AI Chatbot API running"}
-
-# @app.post("/chat")
-# async def chat_endpoint(payload: ChatRequest):
-#     if not payload.message.strip():
-#         raise HTTPException(status_code=400, detail="Message is empty")
-#     try:
-#         headers = {"Authorization": f"Bearer {GEMINI_API_KEY}"}
-#         json_payload = {
-#             "model": "gemini-2.0-flash",
-#             "messages": [{"role": "user", "content": payload.message}]
-#         }
-#         response = httpx.post(GEMINI_URL, headers=headers, json=json_payload)
-#         data = response.json()
-#         return {"reply": data.get("choices", [{"message": {"content": "Error"}}])[0]["message"]["content"]}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
